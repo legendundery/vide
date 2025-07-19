@@ -92,6 +92,7 @@ onMounted(()=>{
   currentTab.value = defineAsyncComponent(()=>
     import( defaultTab.path)
   );
+
 });
 
 const TabsBlock = ref({
@@ -125,6 +126,7 @@ const GetTabs = (id)=>{
 }
 
 var targetFrom = 0, targetTo = '', targetMethod = '';
+var BlockIdCopy = props.BlockId;
 
 const BlocksMouseMove = (e, flag = false) =>{
     //console.log('debug')
@@ -214,7 +216,7 @@ const BlocksMouseMove = (e, flag = false) =>{
     preview.value = false;
 }
 
-const HeaderMouseMove = (e, flag = false) =>{
+const HeaderMouseMove = (e) =>{
     const TargetBlock = e.currentTarget;
     const rect = TargetBlock.getBoundingClientRect();
 
@@ -287,15 +289,17 @@ const DeleteNode = (from) =>{
 const initBTREE = ()=>{
   var query = [];
   query.push({
-    tree: LayoutStore.BTREE,
+    tree: (LayoutStore.BTREE),
     path: '',
   });
-
   while(query.length > 0){
     var tmpNode = query.pop();
     if(tmpNode.tree.type === 'leaf'){
       for(var i = 0; i < LayoutStore.Leafs.length; i ++){
         if(LayoutStore.Leafs[i].id === tmpNode.tree.first){
+          if(LayoutStore.Leafs[i].id === props.BlockId){
+            BlockIdCopy = tmpNode.path;
+          }
           LayoutStore.Leafs[i].id = tmpNode.path;
         }
       }
@@ -426,7 +430,7 @@ const BlocksMouseMoveTabs = (event)=>{
   BlocksMouseMove(event,true)
 }
 const HeaderMouseMoveTabs = (event)=>{
-  HeaderMouseMove(event,true)
+  HeaderMouseMove(event)
 }
 
 const onStartTab = (e) => {
@@ -443,7 +447,13 @@ const onEndTab = () => {
         document.getElementById(leaf.id+'-block').removeEventListener('mousemove',BlocksMouseMoveTabs)
         document.getElementById(leaf.id+'-header').removeEventListener('mousemove',HeaderMouseMoveTabs)
     });
-    if(targetTo !== props.BlockId){
+
+    //targetTo !== props.BlockId
+    if(true){
+      if((GetTabs(BlockIdCopy)).length === 1 && targetTo == props.BlockId){
+        return;
+      }
+
       const toNode = GetNode(targetTo);
 
       var tmpTab;
@@ -466,26 +476,26 @@ const onEndTab = () => {
           LayoutStore.Leafs = LayoutStore.Leafs.filter((leaf)=>leaf.id !== 'tmp')
 
           break;
-    case 'l':
-      var tmpNode = {
-        type: 'horizontal',
-        first: {
-          type: 'leaf',
-          first: 'tmp',
-          second:undefined,
-        },
-        second:toRaw(toNode.value),
-      }
-        toNode.value = tmpNode;
-      if(targetTo.length < 1) LayoutStore.BTREE = toNode;
+        case 'l':
+          var tmpNode = {
+            type: 'horizontal',
+            first: {
+              type: 'leaf',
+              first: 'tmp',
+              second:undefined,
+            },
+            second:toRaw(toNode.value),
+          }
+            toNode.value = tmpNode;
+          if(targetTo.length < 1 ) LayoutStore.BTREE = toNode;
 
-      LayoutStore.Leafs.push({
-        id:'tmp',
-        pages:[tmpTab]
-      })
-      initBTREE();
-      break;
-    case 'u':
+          LayoutStore.Leafs.push({
+            id:'tmp',
+            pages:[tmpTab]
+          })
+          initBTREE();
+          break;
+        case 'u':
       var tmpNode = {
         type: 'vertical',
         first: {
@@ -504,7 +514,7 @@ const onEndTab = () => {
       })
       initBTREE();
       break;
-    case 'r':
+        case 'r':
       var tmpNode = {
         type: 'horizontal',
         first: toRaw(toNode.value),
@@ -523,7 +533,7 @@ const onEndTab = () => {
       })
       initBTREE();
       break;
-    case 'd':
+        case 'd':
       var tmpNode = {
         type: 'vertical',
         first: toRaw(toNode.value),
@@ -542,12 +552,15 @@ const onEndTab = () => {
       })
       initBTREE();
       break;
-  }
+        }
+
+
+    if((GetTabs(BlockIdCopy)).length === 0){
+      DeleteNode(props.BlockId);
+      initBTREE();
+      LayoutStore.Leafs = LayoutStore.Leafs.filter((leaf)=>leaf.id !== 'tmp')
     }
-  if(GetTabs(props.BlockId).length === 0){
-    DeleteNode(props.BlockId);
-    initBTREE();
-    LayoutStore.Leafs = LayoutStore.Leafs.filter((leaf)=>leaf.id !== 'tmp')
+
   }
 };
 
