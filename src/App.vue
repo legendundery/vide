@@ -1,7 +1,9 @@
 <template>
-  <div style="width: 500px; height: 500px"><CodeSpace /></div>
+  <n-config-provider>
+    <router-view></router-view>
+  </n-config-provider>
 </template>
 
 <script lang="ts" setup>
-import CodeSpace from "./components/CodeSpace.vue";
+import { NConfigProvider } from "naive-ui";
 </script>
