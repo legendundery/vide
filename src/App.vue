@@ -1,9 +1,10 @@
 <template>
   <n-config-provider>
-    <router-view></router-view>
+    <BasicLayout />
   </n-config-provider>
 </template>
 
 <script lang="ts" setup>
 import { NConfigProvider } from "naive-ui";
+import BasicLayout from "./components/BasicLayout/BasicLayout.vue";
 </script>
