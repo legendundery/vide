@@ -8,6 +8,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["node", "vue", "vue-router"],
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   }
 }
