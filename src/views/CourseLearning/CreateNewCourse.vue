@@ -13,6 +13,7 @@
       <!-- 视频上传区域 -->
       <div class="form-group">
         <label>上传课程视频:</label>
+
         <input type="file" @change="handleVideoUpload" />
         <div v-if="videoUrl" class="video-preview">
           <video ref="videoRef" controls width="640" height="360">

@@ -1,7 +1,9 @@
 <template>
-  <div style="width: 100%; height: 100vh"><LayOut /></div>
+  <div style="width: 100%">
+    <videoVue />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import LayOut from "@/components/LayOut/LayOut.vue";
+import videoVue from "../components/Video/videoVue.vue";
 </script>

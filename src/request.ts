@@ -5,10 +5,11 @@ const backEndUrl = "http://localhost:1437//";
 
 // Vite 中使用 import.meta.env 访问环境变量
 const newAxios = axios.create({
-  baseURL: import.meta.env.MODE === "production" 
-    ? "http://localhost:3000"  // 生产环境地址
-    : backEndUrl,              // 开发环境地址
-  timeout: 30000,
+  baseURL:
+    import.meta.env.MODE === "production"
+      ? "http://localhost:3000" // 生产环境地址
+      : backEndUrl, // 开发环境地址
+  timeout: 60000,
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",
@@ -31,7 +32,7 @@ newAxios.interceptors.request.use(
 newAxios.interceptors.response.use(
   function (response) {
     // 可在此统一处理响应数据
-    return response.data; // 直接返回数据体，简化使用
+    return response; // 直接返回数据体，简化使用
   },
   function (error) {
     // 统一错误处理
@@ -41,4 +42,3 @@ newAxios.interceptors.response.use(
 );
 
 export default newAxios;
-    

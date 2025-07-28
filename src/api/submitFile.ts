@@ -1,4 +1,4 @@
-import newAxios from "@/request";
+import newAxios from "../request.ts";
 
 export const submitFile = async (file: FormData) => {
   return await newAxios

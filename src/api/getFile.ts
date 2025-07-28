@@ -1,4 +1,4 @@
-import newAxios from "@/request";
+import newAxios from "../request.ts";
 
 export const getFile = async (filepath: string) => {
   return await newAxios.get("uploads/" + filepath, {

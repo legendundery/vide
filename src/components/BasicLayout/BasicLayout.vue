@@ -2,44 +2,25 @@
   <n-config-provider :theme-overrides="Theme">
     <n-layout class="app-layout" has-sider>
       <!-- 侧边栏 -->
-      <n-layout-sider
-        collapse-mode="width"
-        :collapsed-width="64"
-        :width="240"
-        :collapsed="collapsed"
-        class="sidebar"
-        bordered
-      >
+      <n-layout-sider :width="64" class="sidebar" bordered>
         <!-- 侧边栏头部 -->
         <div class="sidebar-header">
-          <n-icon size="24" v-if="collapsed">
-            <menu-outline />
-          </n-icon>
-          <div v-else class="sidebar-logo">
-            <n-icon size="24" class="mr-2">
-              <LogoIcon />
-            </n-icon>
-            <span>webide</span>
-          </div>
+          <menu-outline />
         </div>
 
         <!-- 侧边栏菜单 -->
         <n-menu
           v-model:value="activeKey"
-          :collapsed="collapsed"
+          :collapsed="true"
           :collapsed-width="64"
           :collapsed-icon-size="22"
           :options="menuOptions"
-          @update:value="handleMenuChange"
         />
       </n-layout-sider>
       <!-- 主内容区 -->
       <n-layout name="main">
         <!-- 顶部导航栏 -->
         <n-layout-header class="header" bordered>
-          <n-button size="small" circle ghost @click="collapsed = !collapsed">
-            <n-icon><menu-outline /></n-icon>
-          </n-button>
           <div class="header-left">
             <!-- 搜索框 -->
             <n-input
@@ -88,6 +69,8 @@
         <n-layout-footer class="footer">
           © 2025 webide 版权所有
         </n-layout-footer>
+
+        <n-back-top :right="50" />
       </n-layout>
     </n-layout>
   </n-config-provider>
@@ -97,8 +80,8 @@
 import { ref, onMounted, watch } from "vue";
 import { menuOptions, renderIcon } from "./BasicLayoutMenu.ts";
 import { useRoute } from "vue-router";
-import router from "../../router/index.ts";
 import {
+  NBackTop,
   NConfigProvider,
   NLayout,
   NLayoutSider,
@@ -123,7 +106,6 @@ import {
 } from "@vicons/ionicons5";
 
 // 状态管理
-const collapsed = ref(true);
 const activeMenu = ref("");
 const searchQuery = ref("");
 const route = useRoute();
@@ -148,12 +130,6 @@ watch(
     activeMenu.value = newPath;
   }
 );
-
-const handleMenuChange = (key: string) => {
-  activeKey.value = key;
-  // 跳转到对应的路由
-  router.push({ name: key });
-};
 
 //用户选项：
 const useroptions = [
@@ -230,6 +206,7 @@ const useroptions = [
 
 .content {
   padding: 20px;
+  min-height: calc(100% - 115px);
   overflow: auto;
   background-color: #f5f7fa;
 }
@@ -247,23 +224,6 @@ const useroptions = [
   flex: 1;
   padding: 20px;
   background-color: #f5f7fa;
-}
-
-.router-view-wrapper {
-  /* 固定尺寸 - 根据需要调整宽高 */
-  width: 100%;
-  height: 600px; /* 固定高度 */
-  /* 或者使用百分比相对父容器 */
-  /* height: 80%; */
-
-  /* 核心：限制内容在框内 */
-  overflow: auto; /* 内容超出时显示滚动条 */
-  /* 可选：添加边框和阴影增强视觉效果 */
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background-color: #fff;
-  padding: 16px;
 }
 
 /* 可选：自定义滚动条样式 */

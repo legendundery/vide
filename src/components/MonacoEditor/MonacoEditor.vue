@@ -34,10 +34,11 @@ export default defineComponent({
     };
     const initMonaco = () => {
           if (codeEditBox.value) {
-            let editor = monaco.editor.create(codeEditBox.value, {
+            editor = monaco.editor.create(codeEditBox.value, {
               value: props.modelValue,
               language: props.language,
               theme: props.theme,
+              readOnly:props.readOnly,
               ...props.options,
             });
             monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions(

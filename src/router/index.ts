@@ -6,55 +6,63 @@ import {
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    name: 'mainmenu',
-    redirect: '/home',
-    //component: () => import('../components/BasicLayout/BasicLayout.vue'),
-    children: [
-      { 
-        path: 'home', 
-        name: 'home',
-        component: () => import('../views/debug.vue') 
-      },
-      {
-    path: 'course-learning',
-    name: 'course-learning',
-    //component: () => import('../views/CourseLearning/CreateNewCourse.vue'),
+    path: "/",
+    name: "mainmenu",
+    redirect: "/home",
+    component: () => import("../components/BasicLayout/BasicLayout.vue"),
     children: [
       {
-        path: 'create-new-course',
-        name: 'create-new-course',
-        component: () => import('../views/CourseLearning/CreateNewCourse.vue')
+        path: "home",
+        name: "home",
+        component: () => import("../views/debug.vue"),
       },
       {
-        path: 'display-course',
-        name: 'display-course',
-        component: () => import('../views/CourseLearning/DisplayCourse.vue')
+        path: "course-learning",
+        name: "course-learning",
+        //component: () => import('../views/CourseLearning/CreateNewCourse.vue'),
+        children: [
+          {
+            path: "create-new-course",
+            name: "create-new-course",
+            component: () =>
+              import("../views/CourseLearning/CreateNewCourse.vue"),
+          },
+          {
+            path: "display-course",
+            name: "display-course",
+            component: () =>
+              import("../views/CourseLearning/DisplayCourse.vue"),
+          },
+          {
+            path: "learning-course",
+            name: "learning-course",
+            component: () =>
+              import("../views/CourseLearning/LearningCourse.vue"),
+          },
+        ],
       },
       {
-        path: 'learning-course',
-        name: 'learning-course',
-        component: () => import('../views/CourseLearning/LearningCourse.vue')
-      }
-    ]
+        path: "coding-field",
+        name: "coding-field",
+        children: [
+          {
+            path: "code-visualizion-view",
+            name: "code-visualizion-view",
+            component: () => import("../components/DragLayOut/DragLayOut.vue"),
+          },
+          {
+            path: "playground-view",
+            name: "playground-view",
+            component: () => import("../views/debug.vue"),
+          },
+        ],
+      },
+    ],
   },
   {
-    path: 'coding-field',
-    name: 'coding-field',
-    children:[
-      {
-        path: 'code-visualizion-view',
-        name: 'code-visualizion-view',
-        component: () => import('../views/CodingField/codeVisualizationView.vue')
-      },
-      {
-        path: 'play-ground-view',
-        name: 'play-ground-view',
-        component: () => import('../views/CodingField/PlaygroundView.vue')
-      }
-    ]
-  }
-    ]
+    path: "/flexible",
+    name: "flexible",
+    component: () => import("../components/DragLayOut/DragLayOut.vue"),
   },
 ];
 

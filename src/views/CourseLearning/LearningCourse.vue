@@ -64,18 +64,14 @@
                   :closable="pane.closable"
                 >
                   <a-row style="height: 400px">
-                    <codeSpace
-                      title="Code Space"
-                      :compile="compile"
-                      v-model:="pane.codingcontent"
-                    />
+                    <!---->
                   </a-row>
                   <a-row>
                     <a-col :span="12">
-                      <codeSpace title="input" v-model:="pane.inputcontent" />
+                      <!---->
                     </a-col>
                     <a-col :span="12">
-                      <codeSpace title="output" v-model:="pane.outputcontent" />
+                      <!---->
                     </a-col>
                   </a-row>
                 </a-tab-pane>
@@ -265,7 +261,6 @@ watch(selectedSection, (newSection) => {
 
 //代码空间部分
 
-import codeSpace from "@/components/codeSpace.vue";
 import { compileCpp } from "../../api/submitCodeOnPlayground";
 
 const currentoutput = ref("");

@@ -13,7 +13,7 @@ export interface Options {
     // 关闭小地图
     enabled: boolean;
   };
-  // readOnly: Boolean // 只读
+  //readOnly: Boolean; // 只读
   fontSize: number; // 字体大小
   scrollBeyondLastLine: boolean; // 取消代码后面一大段空白
   overviewRulerBorder: boolean; // 不要滚动条的边框
@@ -45,7 +45,7 @@ export const editorProps = {
     validator(value: string): boolean {
       return ["vs", "hc-black", "vs-dark", "hc-light"].includes(value);
     },
-    default: "vs-dark",
+    default: "vs",
   },
   options: {
     type: Object as PropType<Options>,
@@ -60,7 +60,7 @@ export const editorProps = {
           enabled: true,
         },
         placeholder: "please enter...",
-        // readOnly: false, // 只读
+        //readOnly: false, // 只读
         fontSize: 16, // 字体大小
         scrollBeyondLastLine: false, // 取消代码后面一大段空白
         overviewRulerBorder: false, // 不要滚动条的边框

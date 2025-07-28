@@ -16,57 +16,58 @@
     >
       <template #item="{ element }">
         <div class="move item">
-          <draggable
-            :list="GetTabs(element.id)"
-            ghost-class="ghost"
-            handle=".move"
-            filter=".forbid"
-            :force-fallback="true"
-            chosen-class="chosenClass"
-            animation="300"
-            @start="onStartTab"
-            @end="onEndTab"
-            :group="{
-              name: 'tabsgroup',
-              pull: 'false',
-              put: 'false',
-            }"
-            :fallback-class="true"
-            :fallback-on-body="true"
-            :touch-start-threshold="25"
-            :fallback-tolerance="25"
-            :move="onMove"
-            :sort="true"
-            item-key="id"
-          >
-            <template #item="{ element }">
-              <n-button
-                class="tab move"
-                @click="
-                  currentTab = defineAsyncComponent(() => import(element.path))
-                "
-              >
-                {{ element.Tabs }}
-              </n-button>
-            </template>
-          </draggable>
+          <n-flex justify="space-between">
+            <draggable
+              style="display: inline"
+              :list="GetTabs(element.id)"
+              ghost-class="ghost"
+              handle=".move"
+              filter=".forbid"
+              :force-fallback="true"
+              chosen-class="chosenClass"
+              animation="300"
+              @start="onStartTab"
+              @end="onEndTab"
+              :group="{
+                name: 'tabsgroup',
+                pull: 'false',
+                put: 'false',
+              }"
+              :fallback-class="true"
+              :fallback-on-body="true"
+              :touch-start-threshold="25"
+              :fallback-tolerance="25"
+              :move="onMove"
+              :sort="true"
+              item-key="id"
+            >
+              <template #item="{ element }">
+                <n-button
+                  class="tab move"
+                  @click="currentTab = LayoutStore.ComponentMap[element.path]"
+                >
+                  {{ element.Tabs }}
+                </n-button>
+              </template>
+            </draggable>
+            <span :id="BlockId + '-suffix'" class="forbid"></span>
+          </n-flex>
         </div>
       </template>
     </draggable>
   </div>
   <div class="sampleBlock" :id="BlockId + '-block'">
-    <div class="debug" v-if="true">
-      <component :is="currentTab"></component>
-    </div>
+    <component :is="currentTab" v-bind="{ currentId: BlockId }"></component>
   </div>
-  <Teleport to="body"> </Teleport>
-  <div class="previewBlock" v-if="preview" :style="previewStyle"></div>
+  <Teleport to="body">
+    <div class="previewBlock" v-if="preview" :style="previewStyle"></div>
+  </Teleport>
 </template>
 
 <script lang="js" setup>
 import { LayOutStore } from "../../stores/LayOutStore";
 
-import { reactive, ref, toRaw, toRef, toRefs, onMounted, defineAsyncComponent, shallowRef } from "vue";
+import { reactive, ref, toRaw, toRef, toRefs, onMounted, defineAsyncComponent, shallowRef, KeepAlive } from "vue";
 import { NFlex, NButton } from "naive-ui";
 import draggable from "vuedraggable";
 
@@ -86,14 +87,19 @@ const TabsArr = ref([
 
 const currentTab = shallowRef();
 
+
 onMounted(()=>{
+
   const defaultTab = GetTabs(props.BlockId)[0];
-   /* @vite-ignore */
+
+ /*
   currentTab.value = defineAsyncComponent(()=>
     import( defaultTab.path)
   );
-
+  */
+  currentTab.value = (LayoutStore.ComponentMap[defaultTab.path])
 });
+
 
 const TabsBlock = ref({
   name: "tabs-block",
@@ -442,7 +448,7 @@ const onStartTab = (e) => {
 };
 
 const onEndTab = () => {
-  preview.value = false;
+    preview.value = false;
     LayoutStore.Leafs.forEach((leaf)=>{
         document.getElementById(leaf.id+'-block').removeEventListener('mousemove',BlocksMouseMoveTabs)
         document.getElementById(leaf.id+'-header').removeEventListener('mousemove',HeaderMouseMoveTabs)
@@ -554,11 +560,16 @@ const onEndTab = () => {
       break;
         }
 
-
     if((GetTabs(BlockIdCopy)).length === 0){
       DeleteNode(props.BlockId);
       initBTREE();
       LayoutStore.Leafs = LayoutStore.Leafs.filter((leaf)=>leaf.id !== 'tmp')
+    }else if(targetTo !== props.BlockId){
+      const defaultTab = GetTabs(props.BlockId)[0];
+      /* @vite-ignore */
+      currentTab.value = defineAsyncComponent(()=>
+        import( defaultTab.path)
+      );
     }
 
   }
