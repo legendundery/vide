@@ -8,14 +8,8 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "mainmenu",
-    redirect: "/home",
     component: () => import("../components/BasicLayout/BasicLayout.vue"),
     children: [
-      {
-        path: "home",
-        name: "home",
-        component: () => import("../views/debug.vue"),
-      },
       {
         path: "course-learning",
         name: "course-learning",
@@ -57,6 +51,29 @@ const routes: Array<RouteRecordRaw> = [
           },
         ],
       },
+      {
+        path: "login",
+        name: "login",
+        component: () => import("../views/users/login.vue"),
+      },
+      {
+        path: "profile",
+        name: "dashboard",
+        component: () => import("../views/users/profile.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "admin",
+        name: "admin",
+        component: () => import("../views/admin/index.vue"),
+      },
+      {
+        path: "/",
+        name: "home",
+        component: () => import("../views/debug.vue"),
+      },
     ],
   },
   {
@@ -73,6 +90,19 @@ const router = createRouter({
     if (savedPosition) return savedPosition;
     else return { top: 0 };
   },
+});
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem("access_token");
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next("/login");
+  } else if (to.name === "login" && isAuthenticated) {
+    next("/profile");
+  } else {
+    next();
+  }
 });
 
 export default router;

@@ -105,6 +105,8 @@ import {
   PersonCircleOutline as UserIcon,
 } from "@vicons/ionicons5";
 
+import router from "../../router";
+
 // 状态管理
 const activeMenu = ref("");
 const searchQuery = ref("");
@@ -137,6 +139,11 @@ const useroptions = [
     label: "用户资料",
     key: "profile",
     icon: renderIcon(UserIcon),
+    props: {
+      onClick: () => {
+        router.push("profile");
+      },
+    },
   },
   {
     label: "编辑用户资料",
@@ -147,6 +154,12 @@ const useroptions = [
     label: "退出登录",
     key: "logout",
     icon: renderIcon(LogoutIcon),
+    props: {
+      onClick: () => {
+        localStorage.removeItem("access_token");
+        router.push("/");
+      },
+    },
   },
 ];
 </script>

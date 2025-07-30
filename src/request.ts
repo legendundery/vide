@@ -21,6 +21,10 @@ newAxios.interceptors.request.use(
   function (config) {
     // 可在此添加认证 token 等
     // 例如: config.headers.Authorization = `Bearer ${token}`
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers.authorization = `Bearer ${token}`;
+    }
     return config;
   },
   function (error) {
@@ -32,13 +36,33 @@ newAxios.interceptors.request.use(
 newAxios.interceptors.response.use(
   function (response) {
     // 可在此统一处理响应数据
-    return response; // 直接返回数据体，简化使用
+    return response;
   },
-  function (error) {
+  async function (error) {
     // 统一错误处理
     console.error("请求错误:", error.response?.data || error.message);
+
+    const originalRequest = error.config;
+
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      // 刷新 token 逻辑
+      const res = await refreshToken();
+      const newToken = res.data.access_token;
+      localStorage.setItem("access_token", newToken);
+      // 重试原始请求
+      originalRequest.headers.Authorization = `Bearer ${newToken}`;
+      return newAxios(originalRequest);
+    }
+
     return Promise.reject(error);
   }
 );
+
+function refreshToken() {
+  const refreshToken = localStorage.getItem("refresh_token");
+  return axios.post("/auth/refresh", { refresh_token: refreshToken });
+}
 
 export default newAxios;
