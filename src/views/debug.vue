@@ -17,8 +17,8 @@
           .post(
             'api/users/register',
             JSON.stringify({
-              username: 'newStu',
-              email: '',
+              username: 'newAdmin',
+              email: 'admin',
               password: 'abcdefg',
             })
           )

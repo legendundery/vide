@@ -21,6 +21,7 @@ onMounted(() => {
 watch(
   () => userStore.username,
   () => {
+    user_id.value = userStore.user_id;
     username.value = userStore.username;
     role.value = userStore.role;
   }

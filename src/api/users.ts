@@ -33,3 +33,52 @@ export const profile = () => {
     userStore.role = result.data.role;
   });
 };
+
+export const getusers = async () => {
+  return await newAxios.get("api/users");
+};
+
+export const registeruser = async (
+  username: string,
+  email: string,
+  role: string,
+  password: string = ""
+) => {
+  return await newAxios.post(
+    "api/users/register",
+    JSON.stringify({
+      username: username,
+      email: email,
+      role: role,
+      password: password,
+    })
+  );
+};
+
+export const updateuser = async (
+  user_id: Number,
+  username: string,
+  email: string,
+  role: string,
+  password: string = ""
+) => {
+  return await newAxios.post(
+    "api/users/update",
+    JSON.stringify({
+      user_id: user_id,
+      username: username,
+      email: email,
+      role: role,
+      password: password,
+    })
+  );
+};
+
+export const delteuser = async (user_id: Number) => {
+  return await newAxios.post(
+    "api/users/delete",
+    JSON.stringify({
+      user_id: user_id,
+    })
+  );
+};

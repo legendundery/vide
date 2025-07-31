@@ -58,7 +58,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: "profile",
-        name: "dashboard",
+        name: "profile",
         component: () => import("../views/users/profile.vue"),
         meta: {
           requiresAuth: true,
