@@ -1,11 +1,5 @@
 <template>
   <div>
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-
     <video
       ref="previewVideo"
       autoplay
@@ -30,12 +24,20 @@
       <button @click="downloadRecording" :disabled="!recordedBlob">
         下载视频
       </button>
+      <br />
+      <input v-model="lesson.course_id" />
+      <input v-model="lesson.title" />
+      <input v-model="lesson.sort_order" />
+      <br />
+      <button @click="uploadLesson">upload</button>
     </div>
   </div>
 </template>
 
 <script lang="js">
-import { ref} from 'vue';
+import { ref } from 'vue';
+
+import { createLesson } from '../../api/courses';
 
 // 合并流
 const canvasEl = ref(document.createElement("canvas"));
@@ -71,9 +73,27 @@ export default {
       mediaRecorder: null,
       recordedChunks: [],
       recordedBlob: null,
+      lesson :ref({
+        course_id:2,
+        title:"debug",
+        sort_order:1,
+      }),
     };
   },
   methods: {
+    uploadLesson(){
+      let formData = new FormData();
+      formData.append("course_id", this.lesson.course_id);
+      formData.append("title",this.lesson.title);
+      formData.append("sort_order",this.lesson.sort_order);
+
+      formData.append("video_file",this.recordedBlob, `${this.lesson.course_id}${this.lesson.title}.mp4`);
+      console.log("start")
+      createLesson(formData).then(result=>{
+        console.log(result.data);
+      })
+    },
+
     async startCapture() {
       try {
         // 同时请求屏幕共享和摄像头/麦克风
@@ -136,7 +156,7 @@ export default {
 
     startRecording() {
       this.recordedChunks = [];
-      const options = { mimeType: "video/webm;codecs=vp9" };
+      const options = { mimeType: "video/mp4" };
 
       try {
         this.mediaRecorder = new MediaRecorder(this.mediaStream, options);
@@ -149,7 +169,7 @@ export default {
 
         this.mediaRecorder.onstop = () => {
           this.recordedBlob = new Blob(this.recordedChunks, {
-            type: "video/webm",
+            type: "video/mp4",
           });
 
         };

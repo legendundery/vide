@@ -68,11 +68,24 @@ const routes: Array<RouteRecordRaw> = [
         path: "admin",
         name: "admin",
         component: () => import("../views/admin/index.vue"),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "courses",
+        name: "courses",
+        component: () => import("../views/CourseLearning/Courses.vue"),
+      },
+      {
+        path: "lessons/:id",
+        name: "lessons",
+        component: () => import("../views/CourseLearning/Lessons.vue"),
       },
       {
         path: "/",
         name: "home",
-        component: () => import("../views/debug.vue"),
+        component: () => import("../components/Video/videoVue.vue"),
       },
     ],
   },
