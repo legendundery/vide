@@ -1,14 +1,8 @@
 import axios from "axios";
 
-// 开发环境后端地址
-const backEndUrl = "http://localhost:1437//";
-
-// Vite 中使用 import.meta.env 访问环境变量
+// 使用相对 /api 前缀，开发由 Vite 代理，生产由 Nginx / 后端代理
 const newAxios = axios.create({
-  baseURL:
-    import.meta.env.MODE === "production"
-      ? "http://localhost:3000" // 生产环境地址
-      : backEndUrl, // 开发环境地址
+  baseURL: "/", // 统一走相对路径，通过 /api/* 调用
   timeout: 60000,
   withCredentials: false,
   headers: {

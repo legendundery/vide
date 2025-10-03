@@ -47,35 +47,40 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
-import { getusers, delteuser, updateuser, registeruser } from "../../api/users";
+  import { onMounted, ref } from "vue";
+  import {
+    getusers,
+    delteuser,
+    updateuser,
+    registeruser,
+  } from "../../api/users";
 
-interface user_data {
-  user_id: Number;
-  username: string;
-  email: string;
-  role: string;
-  password: string;
-}
-const users = ref([{} as user_data]);
-const newUser = ref({} as user_data);
-const dispUsers = () => {
-  getusers().then((result) => {
-    users.value = result.data.users;
-  });
-};
-const deleteUser = (user_id: Number) => {
-  delteuser(user_id).then((result) => {
-    console.log(result);
-  });
-};
-const updateUser = (
-  user_id: Number,
-  username: string,
-  email: string,
-  role: string
-) => {
-  updateuser(user_id, username, email, role);
-};
-onMounted(() => dispUsers());
+  interface user_data {
+    user_id: Number;
+    username: string;
+    email: string;
+    role: string;
+    password: string;
+  }
+  const users = ref([{} as user_data]);
+  const newUser = ref({} as user_data);
+  const dispUsers = () => {
+    getusers().then((result) => {
+      users.value = result.data.users;
+    });
+  };
+  const deleteUser = (user_id: Number) => {
+    delteuser(user_id).then((result) => {
+      console.log(result);
+    });
+  };
+  const updateUser = (
+    user_id: Number,
+    username: string,
+    email: string,
+    role: string
+  ) => {
+    updateuser(user_id, username, email, role);
+  };
+  onMounted(() => dispUsers());
 </script>

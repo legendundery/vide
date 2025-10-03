@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
-import { menuOptions, renderIcon } from "./BasicLayoutMenu.ts";
+import { buildMenu, renderIcon } from "./BasicLayoutMenu.ts";
 import { useRoute } from "vue-router";
 import {
   NBackTop,
@@ -104,14 +104,18 @@ import {
   LogOutOutline as LogoutIcon,
   PersonCircleOutline as UserIcon,
 } from "@vicons/ionicons5";
+import { useMessage } from 'naive-ui'
 
 import router from "../../router";
+import { UserStore } from "../../stores/UserStore";
 
 // 状态管理
 const activeMenu = ref("");
 const searchQuery = ref("");
 const route = useRoute();
 const activeKey = ref<string | null>(null);
+const userStore = UserStore();
+const menuOptions = ref(buildMenu(userStore.role));
 
 // 主题配置
 const Theme = ref({
@@ -133,7 +137,9 @@ watch(
   }
 );
 
+// 角色变化时动态刷新菜单
 //用户选项：
+const message = useMessage();
 const useroptions = [
   {
     label: "用户资料",
@@ -157,7 +163,8 @@ const useroptions = [
     props: {
       onClick: () => {
         localStorage.removeItem("access_token");
-        router.push("/");
+        message.success('已退出登录',{duration:1200})
+        setTimeout(()=> window.location.reload(), 300);
       },
     },
   },

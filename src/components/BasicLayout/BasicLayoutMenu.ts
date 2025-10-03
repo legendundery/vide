@@ -3,7 +3,6 @@ import type { Component } from "vue";
 import { RouterLink } from "vue-router";
 import {
   Home,
-  BookOutline as BookIcon,
   CodeSlashOutline,
   BookSharp,
   DesktopSharp,
@@ -21,120 +20,65 @@ export const renderIcon = (icon: Component): (() => ReturnType<typeof h>) => {
 };
 
 // 菜单配置
-export const menuOptions: MenuOption[] = [
-  {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            path: "/",
-          },
-        },
-        { default: () => "home" }
-      ),
-    key: "",
-    icon: renderIcon(Home),
-    //disabled: true,
-  },
-  {
-    label: "CourseAdimin",
-    key: "courses-admin",
-    icon: renderIcon(DesktopSharp),
-    children: [
-      {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                path: "/courses-admin/course-create",
-              },
-            },
-            { default: () => "CreateCourse" }
-          ),
-        key: "course-create",
-        icon: renderIcon(CreateOutline),
-      },
-      {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                path: "/courses-admin/lesson-create",
-              },
-            },
-            { default: () => "CreateLesson" }
-          ),
-        key: "lesson-create",
-        icon: renderIcon(CreateOutline),
-      },
+export function buildMenu(role: string | null | undefined): MenuOption[] {
+  const base: MenuOption[] = [
+    {
+      label: () =>
+        h(RouterLink, { to: { path: "/" } }, { default: () => "Home" }),
+      key: "home",
+      icon: renderIcon(Home),
+    },
+    {
+      label: () =>
+        h(
+          RouterLink,
+          { to: { path: "/flexible" } },
+          { default: () => "CodingField" }
+        ),
+      key: "coding-field",
+      icon: renderIcon(CodeSlashOutline),
+    },
+  ];
 
-    ]
-  },
-  {
-    label: "CourseLearning",
-    key: "course-learning",
-    icon: renderIcon(BookIcon),
-    children: [
-      {
-        //type: "group",
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                path: "/course-learning/create-new-course",
-              },
-            },
-            { default: () => "CreateNewCourse" }
-          ),
-        key: "create-new-course",
-        icon: renderIcon(BookSharp),
-      },
-      {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                path: "/course-learning/display-course",
-              },
-            },
-            { default: () => "DisplayCourse" }
-          ),
-        key: "display-course",
-        icon: renderIcon(BookSharp),
-      },
-      {
-        label: () =>
-          h(
-            RouterLink,
-            {
-              to: {
-                path: "/course-learning/learning-course",
-              },
-            },
-            { default: () => "LearningCourse" }
-          ),
-        key: "learning-course",
-        icon: renderIcon(BookSharp),
-      },
-    ],
-  },
-  {
-    label: () =>
-      h(
-        RouterLink,
+  // 管理员与教师：添加课程管理
+  if (role === "admin" || role === "teacher") {
+    base.push({
+      label: "CourseAdmin",
+      key: "courses-admin",
+      icon: renderIcon(DesktopSharp),
+      children: [
         {
-          to: {
-            path: "/flexible",
-          },
+          label: () =>
+            h(
+              RouterLink,
+              { to: { path: "/courses-admin/dashboard" } },
+              { default: () => "Dashboard" }
+            ),
+          key: "courses-dashboard",
+          icon: renderIcon(DesktopSharp),
         },
-        { default: () => "CodingField" }
-      ),
-    key: "/coding-field",
-    icon: renderIcon(CodeSlashOutline),
-  },
-];
+        {
+          label: () =>
+            h(
+              RouterLink,
+              { to: { path: "/courses-admin/course-create" } },
+              { default: () => "CreateCourse" }
+            ),
+          key: "course-create",
+          icon: renderIcon(CreateOutline),
+        },
+      ],
+    });
+  }
+
+  // 仅管理员：加入后台入口
+  if (role === "admin") {
+    base.push({
+      label: () =>
+        h(RouterLink, { to: { path: "/admin" } }, { default: () => "Admin" }),
+      key: "admin",
+      icon: renderIcon(BookSharp),
+    });
+  }
+  return base;
+}

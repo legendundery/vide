@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },
@@ -14,13 +14,14 @@
     "monaco-editor": "^0.33.0",
     "native-ui": "^0.0.1",
     "pinia": "^3.0.3",
+    "pnpm": "^10.18.0",
     "vite-plugin-monaco-editor-esm": "^2.0.2",
     "vue": "^3.5.19",
     "vue-router": "^4.5.1",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.6.2",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue/tsconfig": "^0.7.0",
     "naive-ui": "^2.42.0",

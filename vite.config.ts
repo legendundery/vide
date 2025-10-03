@@ -7,6 +7,16 @@ import monacoEditorPlugin from "vite-plugin-monaco-editor-esm";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue(), monacoEditorPlugin({})],
+  server: {
+    port: 5174,
+    open: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:1437",
+        changeOrigin: true,
+      },
+    },
+  },
   optimizeDeps: {
     include: [
       `monaco-editor/esm/vs/language/json/json.worker`,

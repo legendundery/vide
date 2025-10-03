@@ -14,14 +14,14 @@ const username = ref("");
 const role = ref("");
 onMounted(() => {
   profile();
-  user_id.value = userStore.user_id;
+  user_id.value = userStore.user_id as number;
   username.value = userStore.username;
   role.value = userStore.role;
 });
 watch(
   () => userStore.username,
   () => {
-    user_id.value = userStore.user_id;
+    user_id.value = userStore.user_id as number;
     username.value = userStore.username;
     role.value = userStore.role;
   }
