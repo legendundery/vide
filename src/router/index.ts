@@ -52,6 +52,22 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
+        path: "courses-admin",
+        name: "courses-admin",
+        children: [
+          {
+            path: "course-create",
+            name: "course-create",
+            component: () => import("../views/CourseAdmin/CourseCreate.vue"),
+          },
+          {
+            path: "lesson-create",
+            name: "lesson-create",
+            component: () => import("../views/CourseAdmin/LessonCreate.vue"),
+          },
+        ],
+      },
+      {
         path: "login",
         name: "login",
         component: () => import("../views/users/login.vue"),

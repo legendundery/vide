@@ -19,3 +19,11 @@ export const createLesson = async (params: any) => {
     },
   });
 };
+
+export const createCourse = async (params: any) => {
+  return await newAxios.post("api/courses/", params, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}

@@ -15,7 +15,7 @@
     "native-ui": "^0.0.1",
     "pinia": "^3.0.3",
     "vite-plugin-monaco-editor-esm": "^2.0.2",
-    "vue": "^3.5.17",
+    "vue": "^3.5.19",
     "vue-router": "^4.5.1",
     "vuedraggable": "^4.1.0"
   },

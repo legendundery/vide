@@ -6,6 +6,8 @@ import {
   BookOutline as BookIcon,
   CodeSlashOutline,
   BookSharp,
+  DesktopSharp,
+  CreateOutline,
 } from "@vicons/ionicons5";
 
 import { NIcon } from "naive-ui";
@@ -34,6 +36,42 @@ export const menuOptions: MenuOption[] = [
     key: "",
     icon: renderIcon(Home),
     //disabled: true,
+  },
+  {
+    label: "CourseAdimin",
+    key: "courses-admin",
+    icon: renderIcon(DesktopSharp),
+    children: [
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
+                path: "/courses-admin/course-create",
+              },
+            },
+            { default: () => "CreateCourse" }
+          ),
+        key: "course-create",
+        icon: renderIcon(CreateOutline),
+      },
+      {
+        label: () =>
+          h(
+            RouterLink,
+            {
+              to: {
+                path: "/courses-admin/lesson-create",
+              },
+            },
+            { default: () => "CreateLesson" }
+          ),
+        key: "lesson-create",
+        icon: renderIcon(CreateOutline),
+      },
+
+    ]
   },
   {
     label: "CourseLearning",

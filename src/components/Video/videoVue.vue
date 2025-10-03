@@ -77,13 +77,14 @@ export default {
         course_id:2,
         title:"debug",
         sort_order:1,
+        lesson_id:1,
       }),
     };
   },
   methods: {
     uploadLesson(){
       let formData = new FormData();
-      formData.append("course_id", this.lesson.course_id);
+      formData.append("course_id", this.lesson.course_id);//该课程所属于的courses的id,lessonsid是由数据库自动生成的
       formData.append("title",this.lesson.title);
       formData.append("sort_order",this.lesson.sort_order);
 
