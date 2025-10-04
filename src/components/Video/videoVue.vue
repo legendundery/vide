@@ -1,7 +1,10 @@
 <template>
   <div class="recorder-wrapper">
     <!-- 实时预览（录制前 / 录制中显示） -->
-  <div v-show="status !== 'idle' && !recordedBlob" class="live-preview-container">
+    <div
+      v-show="status !== 'idle' && !recordedBlob"
+      class="live-preview-container"
+    >
       <video
         ref="previewVideo"
         autoplay
@@ -9,7 +12,9 @@
         :muted="true"
         class="preview"
       ></video>
-      <div v-if="status === 'recording'" class="recording-indicator">● 录制中</div>
+      <div v-if="status === 'recording'" class="recording-indicator">
+        ● 录制中
+      </div>
     </div>
 
     <!-- 录制完成后展示可控播放预览 -->
@@ -20,40 +25,63 @@
         controls
         :src="playbackUrl"
       ></video>
-      <div class="file-info">格式: {{ recordedBlob.type || '未知' }} | 大小: {{ prettySize(recordedBlob.size) }}</div>
+      <div class="file-info">
+        格式: {{ recordedBlob.type || "未知" }} | 大小:
+        {{ prettySize(recordedBlob.size) }}
+      </div>
     </div>
 
     <!-- 控件区域 -->
-  <div class="controls">
+    <div class="controls">
       <!-- 初始 / 设备释放后 -->
-  <button v-if="status==='idle'" @click="startCapture">启用设备</button>
+      <button v-if="status === 'idle'" @click="startCapture">启用设备</button>
 
       <!-- 设备就绪 -->
-      <template v-if="status==='ready' && !recordedBlob">
-  <button @click="startRecording">开始录制</button>
-  <button @click="toggleMute" :disabled="!hasAudio()">{{ isMuted? '取消静音' : '静音' }}</button>
+      <template v-if="status === 'ready' && !recordedBlob">
+        <button @click="startRecording">开始录制</button>
+        <button @click="toggleMute" :disabled="!hasAudio()">
+          {{ isMuted ? "取消静音" : "静音" }}
+        </button>
       </template>
 
       <!-- 正在录制 -->
-      <template v-if="status==='recording'">
-  <button @click="stopRecording">停止录制</button>
-  <button @click="toggleMute" :disabled="!hasAudio()">{{ isMuted? '取消静音' : '静音' }}</button>
+      <template v-if="status === 'recording'">
+        <button @click="stopRecording">停止录制</button>
+        <button @click="toggleMute" :disabled="!hasAudio()">
+          {{ isMuted ? "取消静音" : "静音" }}
+        </button>
       </template>
 
       <!-- 录制完成（回放阶段） -->
-      <template v-if="recordedBlob && status!=='recording'">
-        <button @click="reRecord" :disabled="uploading || preUploaded">重新录制</button>
-        <button v-if="!preUploaded" @click="emitUpload" :disabled="uploading">{{ uploading? '上传中...' : '上传(随课时)' }}</button>
-        <button v-if="!preUploaded" @click="uploadVideoAlone" :disabled="uploading">{{ uploading? '上传中...' : '预上传(视频)' }}</button>
+      <template v-if="recordedBlob && status !== 'recording'">
+        <button @click="reRecord" :disabled="uploading || preUploaded">
+          重新录制
+        </button>
+        <button v-if="!preUploaded" @click="emitUpload" :disabled="uploading">
+          {{ uploading ? "上传中..." : "上传(随课时)" }}
+        </button>
+        <button
+          v-if="!preUploaded"
+          @click="uploadVideoAlone"
+          :disabled="uploading"
+        >
+          {{ uploading ? "上传中..." : "预上传(视频)" }}
+        </button>
         <button disabled v-if="preUploaded">已预上传</button>
-        <button @click="downloadRecording" :disabled="uploading">下载 MP4</button>
-        <button @click="toggleMutePlayback" :disabled="uploading">{{ playbackMuted? '播放声音' : '静音预览' }}</button>
+        <button @click="downloadRecording" :disabled="uploading">
+          下载 MP4
+        </button>
+        <button @click="toggleMutePlayback" :disabled="uploading">
+          {{ playbackMuted ? "播放声音" : "静音预览" }}
+        </button>
       </template>
 
       <!-- 永远可用的释放/结束（可选） -->
-      <button v-if="status!=='idle' && !recordedBlob" @click="stopCapture">释放设备</button>
+      <button v-if="status !== 'idle' && !recordedBlob" @click="stopCapture">
+        释放设备
+      </button>
     </div>
-  <div class="upload-status" v-if="uploadMsg">{{ uploadMsg }}</div>
+    <div class="upload-status" v-if="uploadMsg">{{ uploadMsg }}</div>
 
     <!-- 调试 / 可选表单（保留原始示例，隐藏化或后续移除） -->
     <details class="debug" v-if="showDebug">
@@ -61,7 +89,9 @@
       <input v-model="lesson.course_id" placeholder="course_id" />
       <input v-model="lesson.title" placeholder="title" />
       <input v-model="lesson.sort_order" placeholder="sort_order" />
-      <button @click="uploadLesson" :disabled="!recordedBlob">(示例)直接创建Lesson</button>
+      <button @click="uploadLesson" :disabled="!recordedBlob">
+        (示例)直接创建Lesson
+      </button>
     </details>
   </div>
 </template>
@@ -86,13 +116,14 @@ const getVideo = (stream, width = 800, height = 448) => {
   return videoEl;
 };
 
+
 const drawToCanvasScreenAndVideo = (screenEl, videoEl) => {
   if (isStopDraw.value) return;
   try {
     canvasContext.value.drawImage(screenEl, 0, 0, 800, 448);
     canvasContext.value.drawImage(videoEl, 600, 336, 200, 112);
   } catch(e){ /* ignore drawing errors */ }
-  requestAnimationFrame(()=> drawToCanvasScreenAndVideo(screenEl, videoEl));
+  // requestAnimationFrame(()=> drawToCanvasScreenAndVideo(screenEl, videoEl));
 };
 
 export default {
@@ -108,6 +139,7 @@ export default {
       selectedMime: '',
       isMuted: false,
       playbackMuted: false,
+	  drawInterval: null,
   screenElRef: null,
   cameraElRef: null,
       lesson: ref({
@@ -273,40 +305,53 @@ export default {
       }
     },
 
-    startRecording() {
+    async startRecording() {
+      if (!this.mediaStream) return;
+      this.status = 'recording';
+      this.$emit('recording-start');
       this.recordedChunks = [];
       this.recordedBlob = null;
       this.playbackUrl = '';
-      isStopDraw.value = false;
       this.selectedMime = this.pickSupportedMime();
-      const options = this.selectedMime ? { mimeType: this.selectedMime } : {};
-      try {
-        this.mediaRecorder = new MediaRecorder(this.mediaStream, options);
-        this.mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            this.recordedChunks.push(event.data);
-          }
-        };
-        this.mediaRecorder.onstop = () => {
-          const mime = this.selectedMime || (this.recordedChunks[0]?.type) || 'video/webm';
-          this.recordedBlob = new Blob(this.recordedChunks, { type: mime });
-          this.playbackUrl = URL.createObjectURL(this.recordedBlob);
-        };
-        this.mediaRecorder.start(100);
-        this.status = 'recording';
-        this.$emit('recording-start');
-      } catch (error) {
-        console.error('录制失败:', error);
-        alert(`录制错误: ${error.message}`);
+
+      canvasEl.value.width = 800;
+      canvasEl.value.height = 448;
+      isStopDraw.value = false;
+      this.drawInterval = setInterval(() => {
+        drawToCanvasScreenAndVideo(this.screenElRef, this.cameraElRef);
+      }, 1000 / 30); // 30fps
+
+      const combinedStream = canvasEl.value.captureStream(30);
+      const audioStream = this.mediaStream.getAudioTracks();
+      if (audioStream.length > 0) {
+        combinedStream.addTrack(audioStream[0]);
       }
+
+      this.mediaRecorder = new MediaRecorder(combinedStream, {
+        mimeType: this.selectedMime,
+      });
+      this.mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) this.recordedChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => {
+        this.recordedBlob = new Blob(this.recordedChunks, {
+          type: this.selectedMime || this.recordedChunks[0]?.type || "video/webm",
+        });
+        this.playbackUrl = URL.createObjectURL(this.recordedBlob);
+        this.status = 'ready';
+        this.$emit('recording-stop');
+      };
+      this.mediaRecorder.start();
     },
 
     stopRecording() {
       if (this.mediaRecorder && this.status === 'recording') {
         this.mediaRecorder.stop();
-        this.status = 'ready';
         isStopDraw.value = true;
-        this.$emit('recording-stop');
+        if (this.drawInterval) {
+          clearInterval(this.drawInterval);
+          this.drawInterval = null;
+        }
       }
     },
 
@@ -350,6 +395,11 @@ export default {
         this.mediaRecorder.stop();
       }
 
+      if (this.drawInterval) {
+        clearInterval(this.drawInterval);
+        this.drawInterval = null;
+      }
+
       this.status = "idle";
       this.$refs.previewVideo.srcObject = null;
       isStopDraw.value = true;
@@ -369,13 +419,57 @@ export default {
 </script>
 
 <style scoped>
-.recorder-wrapper { display:flex; flex-direction:column; gap:12px; }
-.live-preview-container, .playback-container { position:relative; }
-.preview, .playback { width:100%; background:#000; border-radius:8px; max-height:60vh; }
-.recording-indicator { position:absolute; top:8px; left:12px; background:rgba(0,0,0,.55); color:#ff5f56; padding:4px 8px; border-radius:20px; font-size:12px; letter-spacing:1px; }
-.controls { display:flex; flex-wrap:wrap; gap:8px; }
-button { padding:8px 14px; background:#3498db; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; }
-button:disabled { background:#95a5a6; cursor:not-allowed; }
-.file-info { margin-top:6px; font-size:12px; color:#666; }
-.debug { font-size:12px; }
+.recorder-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.live-preview-container,
+.playback-container {
+  position: relative;
+}
+.preview,
+.playback {
+  width: 100%;
+  background: #000;
+  border-radius: 8px;
+  max-height: 60vh;
+}
+.recording-indicator {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ff5f56;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+button {
+  padding: 8px 14px;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+.file-info {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}
+.debug {
+  font-size: 12px;
+}
 </style>
