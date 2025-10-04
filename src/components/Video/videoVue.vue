@@ -96,7 +96,7 @@ const drawToCanvasScreenAndVideo = (screenEl, videoEl) => {
 };
 
 export default {
-  emits: ['upload','video-pre-uploaded'],
+  emits: ['upload','video-pre-uploaded','recording-start','recording-stop'],
   data() {
     return {
       status: 'idle', // idle | ready | recording
@@ -294,6 +294,7 @@ export default {
         };
         this.mediaRecorder.start(100);
         this.status = 'recording';
+        this.$emit('recording-start');
       } catch (error) {
         console.error('录制失败:', error);
         alert(`录制错误: ${error.message}`);
@@ -305,6 +306,7 @@ export default {
         this.mediaRecorder.stop();
         this.status = 'ready';
         isStopDraw.value = true;
+        this.$emit('recording-stop');
       }
     },
 

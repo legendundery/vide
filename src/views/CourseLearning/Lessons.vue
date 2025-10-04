@@ -9,7 +9,7 @@
         <h1 class="title">{{ course.title }}</h1>
         <p class="desc">{{ course.description || '暂无课程描述。' }}</p>
         <div class="meta">
-          <span>总时长: {{ course.total_duration || '-' }} 分钟</span>
+          <span>总时长: {{ course.total_duration || '-' }} 秒</span>
           <span>评分: {{ course.avg_rating || '-' }}</span>
           <span>状态: {{ course.status || '-' }}</span>
         </div>
@@ -29,7 +29,7 @@
           </template>
           <div class="l-title">{{ l.title }}</div>
           <template #suffix>
-            <span class="duration">{{ l.duration || '-' }} 分钟</span>
+            <span class="duration">{{ l.duration ? Math.floor(l.duration / 60) : '-' }}min{{ l.duration ? (l.duration % 60) : '-' }}s</span>
           </template>
         </n-list-item>
       </n-list>
@@ -79,7 +79,7 @@ const openLesson = (lessonId:number)=> router.push(`/lesson-player/${courseId}/$
 .section-title { font-size:20px; margin:0 0 16px; font-weight:600; }
 .lesson-list { background:#fff; border-radius:8px; overflow:hidden; }
 .l-title { font-size:14px; font-weight:500; }
-.duration { font-size:12px; color:#888; }
+.duration { font-size:12px; color:#888; width : 180px; text-align: right; }
 .lesson-skeleton { display:flex; flex-direction:column; gap:10px; }
 @media (max-width: 780px){ .course-head { flex-direction:column; } .cover { width:100%; } .title { font-size:22px; } }
 </style>

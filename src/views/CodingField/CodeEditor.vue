@@ -53,6 +53,13 @@ watch(code, () => {
   if(tab){ tab.code = code.value; }
   codingstore.code = code.value; // 保持旧逻辑兼容（全局最后一次）
 });
+// 反向同步：当播放或其它组件更新全局 codingstore.code 时，若当前本地未手动编辑则更新编辑器
+watch(()=> codingstore.code, (val)=>{
+  // 避免循环：只有在值不同且当前 tab 不是正在输入同一内容时才更新
+  if(val !== code.value){
+    code.value = val || '';
+  }
+});
 watch(()=> props.currentId, ()=>{});
 
 // compile/visualize now triggered by DraggableBlocks header actions (kept for fallback shortcut, but not used directly)
@@ -62,19 +69,27 @@ const compile = () => {
   if(isCompiling.value) return; // 防抖
   isCompiling.value = true;
   const currentTab = getCurrentTab();
-  const updateJSON = ref({
+  // 捕获当前快照，防止中途用户再编辑导致“上一版结果覆盖下一版”错觉
+  const snapshot = {
     code: currentTab? currentTab.code : codingstore.code,
     input: codingstore.input,
-  });
+    ts: Date.now()
+  };
   // 预写入“正在编译”占位
   const compilingMsg = '[Compiling...]';
   codingstore.output = compilingMsg;
   // 自动切换到 Output leaf (rd) 激活其 Output tab（通过 LayoutStore）
   switchToOutputLeaf();
-  compileCpp(JSON.stringify(updateJSON.value))
+  compileCpp(JSON.stringify({ code: snapshot.code, input: snapshot.input }))
     .then((result) => {
-      const out = safeNormalizeOutput(result?.data?.output);
-  codingstore.output = out;
+      const d = result?.data || {};
+      if(d.success === false){
+        const errText = d.error || '(no detail)';
+        codingstore.output = `[Compile Error]\n${errText}`;
+        return;
+      }
+      const rawOut = d.output;
+      codingstore.output = rawOut && rawOut.length ? rawOut : '[Compile Success] (no output)';
     })
     .catch((err) => {
       const msg = extractError(err);
@@ -88,17 +103,31 @@ const visualize = () => {
   if(isCompiling.value) return; // 与 compile 互斥
   isCompiling.value = true;
   const currentTab = getCurrentTab();
-  const updateJSON = ref({
+  const snapshot = {
     code: currentTab? currentTab.code : codingstore.code,
     input: codingstore.input,
-  });
+    ts: Date.now()
+  };
   const runningMsg = '[Debug Running...]';
   codingstore.output = runningMsg;
   switchToOutputLeaf();
-  debugCpp(JSON.stringify(updateJSON.value))
+  debugCpp(JSON.stringify({ code: snapshot.code, input: snapshot.input }))
     .then((result) => {
-      const out = safeNormalizeOutput(result?.data?.output);
-  codingstore.output = out;
+      const d = result?.data || {};
+      if(d.success === false){
+        const errText = d.error || '(no detail)';
+        codingstore.output = `[Debug Error]\n${errText}`;
+        return;
+      }
+      const rawOut = d.output;
+      // 如果需要显示调试信息，可追加 JSON
+      if(d.debug){
+        let dbgStr = '';
+        try { dbgStr = JSON.stringify(d.debug, null, 2); } catch { dbgStr = String(d.debug); }
+        codingstore.output = (rawOut && rawOut.length ? rawOut : '[Debug Success] (no output)') + '\n\n[Debug Info]\n' + dbgStr;
+      } else {
+        codingstore.output = rawOut && rawOut.length ? rawOut : '[Debug Success] (no output)';
+      }
     })
     .catch((err) => {
       const msg = extractError(err);
@@ -119,11 +148,6 @@ function switchToOutputLeaf(){
 
 defineExpose({ compile, visualize, isCompiling });
 
-function safeNormalizeOutput(raw:any):string {
-  if(raw == null) return '';
-  if(typeof raw === 'string') return raw;
-  try { return JSON.stringify(raw, null, 2); } catch { return String(raw); }
-}
 function extractError(e:any):string {
   if(!e) return 'Unknown error';
   if(e.response?.data){

@@ -30,6 +30,10 @@ const suffixExists = ref(false);
 onMounted(() => { input.value = codingstore.input; refreshSuffix(); });
 
 watch(input, () => { codingstore.input = input.value; });
+// 反向同步：播放更新全局输入时同步编辑器
+watch(()=> codingstore.input, (val)=>{
+  if(val !== input.value){ input.value = val || ''; }
+});
 watch(()=> props.currentId, ()=> refreshSuffix());
 
 function refreshSuffix(){

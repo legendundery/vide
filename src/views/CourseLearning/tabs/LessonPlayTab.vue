@@ -33,6 +33,8 @@ const introText = ref('');
 const homeworkText = ref('');
 const videoRef = ref<HTMLVideoElement|null>(null);
 const codingStore = CodingStore();
+// 标记视频事件是否已绑定，避免重复绑定
+let videoEventsAttached = false;
 
 // 简单转义为 HTML（可拓展 markdown 渲染）
 function escapeHtml(s:string){
@@ -63,6 +65,14 @@ async function fetchLesson(){
             console.table(norm.slice(0,20).map(s=>({t:s.t, codeLen:s.code?.length||0, hasCode:!!s.code, reason:s._reason})));
             if(norm.length>20) console.log('... total', norm.length);
             console.groupEnd();
+            // 立即应用首段，避免等待第一帧事件
+            const firstSeg = codingStore.resolveSegment(0);
+            if(firstSeg){
+              if(typeof firstSeg.code === 'string') codingStore.code = firstSeg.code;
+              if(typeof firstSeg.input === 'string') codingStore.input = firstSeg.input;
+              if(typeof firstSeg.output === 'string') codingStore.output = firstSeg.output;
+              console.log('%c[LessonPlay] Initial segment applied t='+firstSeg.t,'color:#9c27b0');
+            }
           }
         } catch(e){ console.warn('[LessonPlay] parse timeline failed', e); }
       }
@@ -79,6 +89,8 @@ function emitCodeSync(type:string){
 
 function attachVideoEvents(){
   const v = videoRef.value; if(!v) return;
+  if(videoEventsAttached) return; // 已绑定过
+  videoEventsAttached = true;
   v.addEventListener('play', ()=> emitCodeSync('play'));
   v.addEventListener('pause', ()=> emitCodeSync('pause'));
   v.addEventListener('seeked', ()=> emitCodeSync('seek'));
@@ -100,25 +112,26 @@ function attachVideoEvents(){
       if(typeof seg.code === 'string' && codingStore.code !== seg.code){ codingStore.code = seg.code; changed = true; }
       if(typeof seg.input === 'string' && codingStore.input !== seg.input){ codingStore.input = seg.input; changed = true; }
       if(typeof seg.output === 'string' && codingStore.output !== seg.output){ codingStore.output = seg.output; changed = true; }
-      if(changed){
+      // 始终记录 segment 应用（不再要求 changed 才打印），但用 changed 标记区别
+      if(changed || seg.t !== lastSegmentT){
         console.log('%c[LessonPlay] Apply','color:#2196f3', 'videoTs=', ts.toFixed(3), 'seg.t=', seg.t, {
           codeChanged: beforeCode!==codingStore.code,
           inputChanged: beforeInput!==codingStore.input,
           outputChanged: beforeOutput!==codingStore.output,
-          codeLen: codingStore.code.length
+          codeLen: codingStore.code.length,
+          changed
         });
-        if(seg.t !== lastSegmentT){
-          lastSegmentT = seg.t;
-          // 代码较长时截断显示前后若干行
-          const codePreview = codingStore.code.split('\n');
-          let printed = codePreview;
-            if(codePreview.length>40){
-              printed = [...codePreview.slice(0,20),`... (${codePreview.length-40} lines omitted) ...`,...codePreview.slice(-20)];
-            }
-          console.groupCollapsed('%c[LessonPlay] Segment Code t='+seg.t,'color:#ff9800');
-          console.log(printed.join('\n'));
-          console.groupEnd();
+      }
+      if(seg.t !== lastSegmentT){
+        lastSegmentT = seg.t;
+        const codePreview = codingStore.code.split('\n');
+        let printed = codePreview;
+        if(codePreview.length>40){
+          printed = [...codePreview.slice(0,20),`... (${codePreview.length-40} lines omitted) ...`,...codePreview.slice(-20)];
         }
+        console.groupCollapsed('%c[LessonPlay] Segment Code t='+seg.t,'color:#ff9800');
+        console.log(printed.join('\n'));
+        console.groupEnd();
       }
     }
   };
@@ -134,6 +147,8 @@ function attachVideoEvents(){
 }
 
 onMounted(()=>{ attachVideoEvents(); });
+// 关键：初次 onMounted 时 videoUrl 可能还没拉取到导致 videoRef 为空，这里监听 videoUrl 一旦有值再尝试绑定
+watch(videoUrl, (val)=>{ if(val) setTimeout(()=> attachVideoEvents(), 0); });
 onBeforeUnmount(()=>{
   const v = videoRef.value; if(!v) return;
   v.removeAttribute('src');
@@ -143,6 +158,7 @@ onBeforeUnmount(()=>{
 function handleVideoSync(e:any){
   const { type, ts } = e.detail || {};
   if(type === 'play' || type === 'seek' || type==='pause'){
+    console.log('%c[LessonPlay] handleVideoSync','color:#607d8b', type, ts);
     const seg = codingStore.resolveSegment(Number(ts)||0);
     if(seg){
       if(typeof seg.code === 'string' && codingStore.code !== seg.code) codingStore.code = seg.code;

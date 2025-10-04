@@ -23,7 +23,7 @@
         <h3 class="title" :title="c.title">{{ c.title }}</h3>
         <p class="desc">{{ c.description || '暂无描述' }}</p>
         <div class="meta">
-            <span>{{ c.total_duration || '-' }} 分钟</span>
+            <span>{{ c.total_duration ? Math.floor(c.total_duration / 60) : '-' }} min {{ c.total_duration ? (c.total_duration % 60) : '-' }} s</span>
             <span>评分 {{ c.avg_rating || '-' }}</span>
         </div>
       </n-card>

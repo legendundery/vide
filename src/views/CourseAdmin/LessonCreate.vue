@@ -18,7 +18,7 @@
                 <div class="ex-tips">重新录制并预上传可替换（当前编辑暂未实现替换保存，只作预览）</div>
               </n-alert>
             </div>
-            <VideoVue ref="recorderRef" @upload="onRecordedUpload" @video-pre-uploaded="onVideoPreUploaded" />
+            <VideoVue ref="recorderRef" @upload="onRecordedUpload" @video-pre-uploaded="onVideoPreUploaded" @recording-start="onRecordingStart" @recording-stop="onRecordingStop" />
             <div v-if="preVideoMeta" class="pre-video-preview">
               <n-alert type="success" title="视频已预上传" closable @close="resetPreVideo">
                 <div>文件名: {{ preVideoMeta.filename }} ({{ formatSize(preVideoMeta.size) }})</div>
@@ -157,7 +157,8 @@ const layoutStore = LayOutStore();
 // 结构：[{ t: <秒>, leafId, tabs:[{label,path, code,input,output}], reason }]
 const timelineRt = ref<any[]>([]);
 const SNAP_INTERVAL = 250; // ms
-let timelineStart = performance.now();
+// timelineStart 在真正点击“开始录制”时对齐
+let timelineStart = 0;
 let timelineTimer: number | undefined;
 let lastSignature = '';
 
@@ -196,10 +197,10 @@ function handleKey(){ snapshot('keydown'); }
 function handleClick(){ snapshot('click'); }
 
 function startTimelineCapture(){
-  timelineStart = performance.now();
+  if(!timelineStart) timelineStart = performance.now();
   timelineRt.value = [];
   lastSignature = '';
-  snapshot('start');
+  snapshot('start'); // t=0 段
   timelineTimer = window.setInterval(intervalLoop, SNAP_INTERVAL);
   window.addEventListener('keydown', handleKey, true);
   window.addEventListener('click', handleClick, true);
@@ -209,6 +210,15 @@ function stopTimelineCapture(){
   window.removeEventListener('keydown', handleKey, true);
   window.removeEventListener('click', handleClick, true);
   snapshot('end');
+}
+
+// 录制真正开始：对齐 t=0
+function onRecordingStart(){
+  timelineStart = performance.now();
+  startTimelineCapture();
+}
+function onRecordingStop(){
+  stopTimelineCapture();
 }
 
 // 录制组件上传事件回调 (模板引用)
@@ -390,7 +400,7 @@ onMounted(async ()=>{
       message.error(e?.response?.data?.error || '加载课时失败');
     }
   }
-  startTimelineCapture();
+  // 不再自动启动时间线；等待用户点击“开始录制”触发 recording-start
   // 代码/输入/输出变化立即捕获（去重仍由签名控制）
   watch(()=> codingStore.code, ()=> snapshot('code-change'));
   watch(()=> codingStore.input, ()=> snapshot('input-change'));
